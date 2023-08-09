@@ -1,0 +1,50 @@
+---
+- name: Install required tools
+  hosts: all
+  become: yes
+  tasks:
+  - name: Update apt repo metainfo
+    when: ansible_distribution == 'Ubuntu' 
+    apt:
+      update_cache: yes
+      force_apt_get: yes
+  - name: Install required package
+    package:
+      name:
+      - net-tools
+      - curl
+      - wget
+      - nano
+      - vim
+      state: present
+
+- name: Common server config
+  hosts: all
+  become: yes
+  tasks:
+  - name: Set timezone
+    community.general.timezone:
+      name: Asia/Barnaul
+  - name: Disable password authentication for root
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      state: present
+      regexp: '^#?PermitRootLogin'
+      line: 'PermitRootLogin prohibit-password'
+
+- name: Firewall Configuration
+  hosts: all
+  become: yes
+  tasks:
+    - name: UFW - Allow SSH connections
+      when: ansible_distribution == 'Ubuntu' 
+      ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: UFW - Deny all other incoming traffic by default
+      when: ansible_distribution == 'Ubuntu' 
+      ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
