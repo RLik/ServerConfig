@@ -41,6 +41,18 @@
       ufw:
         rule: allow
         name: OpenSSH
+    - name: ETC2379
+      when: ansible_distribution == 'Ubuntu' 
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 2380
+    - name: ETC2380
+      when: ansible_distribution == 'Ubuntu' 
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 2380   
 
     - name: UFW - Deny all other incoming traffic by default
       when: ansible_distribution == 'Ubuntu' 
